@@ -1,0 +1,25 @@
+Q. ID 10351 -> Activity Rank
+
+Find the email activity rank for each user. Email activity rank is defined by the total number of emails sent. The user with the highest number of emails sent will have a rank of 1, and so on. Output the user, total emails, and their activity rank. Order records by the total emails in descending order. Sort users with the same number of emails in alphabetical order.
+
+In your rankings, return a unique value (i.e., a unique rank) even if multiple users have the same number of emails. For tie breaker use alphabetical order of the user usernames.
+Table: google_gmail_emails
+
+
+Solution :
+# Import your libraries
+import pyspark
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
+from pyspark.sql.window import Window
+
+
+# Start writing code
+g_df = google_gmail_emails.groupBy("from_user").agg(count(col("day")).alias("total_emails"))
+window_spec = Window.orderBy(col("total_emails").desc(),col("from_user").asc())
+
+g_df2 = g_df.withColumn("rank",row_number().over(window_spec)).select("from_user","total_emails","rank")
+
+#g_df2.show()
+# To validate your solution, convert your final pySpark df to a pandas df
+g_df2.toPandas()

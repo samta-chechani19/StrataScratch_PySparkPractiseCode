@@ -1,0 +1,27 @@
+Q Id 10353 -> Workers With The Highest Salaries
+
+You have been asked to find the job titles of the highest-paid employees.
+
+Your output should include the highest-paid title or multiple titles with the same salary.
+Tables: worker, title
+
+worker
+worker_id:intfirst_name:varcharlast_name:varcharsalary:intjoining_date:datetimedepartment:varchar
+title
+worker_ref_id:intworker_title:varcharaffected_from:datetime
+
+My Solution :
+# Import your libraries
+import pyspark
+from pyspark.sql.functions import *
+from pyspark.sql.window import Window
+
+# Start writing code
+worker_df = worker.join(title,worker.worker_id==title.worker_ref_id,"inner")
+
+window_spec = Window.orderBy(col("salary").desc())
+df2 = worker_df.withColumn("Rn",dense_rank().over(window_spec)).filter(col("Rn")==1).select("worker_title")
+
+df2.show()
+# To validate your solution, convert your final pySpark df to a pandas df
+df2.toPandas()
